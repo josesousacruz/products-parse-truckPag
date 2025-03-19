@@ -10,9 +10,9 @@ Esta API permite a importação e gerenciamento de produtos alimentícios utiliz
 - **Bibliotecas**:
 - **Ferramentas**: Docker, Postman para testes  
 
-## 📜 Processo de Desenvolvimento
+## Processo de Desenvolvimento
 
-### 📍 Decisão pelo Banco de Dados
+### Decisão pelo Banco de Dados
 Considerei utilizar MySQL, pois tenho mais experiência e utilizo no dia a dia. No entanto, optei por MongoDB, 
 conforme a proposta do desafio, para explorar uma abordagem NoSQL e facilitar o armazenamento dos dados flexíveis do Open Food Facts.
 
