@@ -84,7 +84,7 @@ class ImportOpenFoodFactsJob implements ShouldQueue
             fclose($jsonStream);
 
             if (!file_exists($jsonPath)) {
-                Log::error("Arquivo JSON não encontrado");  
+                Log::error("Arquivo JSON não encontrado");
                 return;
             }
 
@@ -107,8 +107,7 @@ class ImportOpenFoodFactsJob implements ShouldQueue
 
                 if (!is_array($item) || !isset($item['code'])) continue;
 
-                $code = (int) trim($item['code'], "\"");
-
+                $code = isset($item['code']) ? (string) preg_replace('/\D/', '', (string) $item['code']) : null;
 
                 // Evita duplicados
                 if (Product::where('code', $code)->exists()) {
@@ -116,7 +115,7 @@ class ImportOpenFoodFactsJob implements ShouldQueue
                 }
 
                 $buffer[] = [
-                    'code' => (int) $code,
+                    'code' => $code,
                     'url' => $item['url'] ?? null,
                     'creator' => $item['creator'] ?? null,
                     'created_t' => $item['created_t'] ?? null,
@@ -131,23 +130,31 @@ class ImportOpenFoodFactsJob implements ShouldQueue
                     'ingredients_text' => $item['ingredients_text'] ?? null,
                     'traces' => $item['traces'] ?? null,
                     'image_url' => $item['image_url'] ?? null,
-                    'imported_t' => now(),
                     'status' => 'published',
-                    'created_at' => now(),
-                    'updated_at' => now(),
                 ];
 
 
                 // 5. Inserir no banco
+                // 5. Inserir no banco
                 if (count($buffer) >= $chunkSize) {
                     try {
+                        // Sanitiza os campos que precisam ser string
+                        $now = now()->toDateTimeString();
+                        foreach ($buffer as &$productData) {
+                            $productData['imported_t'] = $now;
+                            
+                        }
+                        unset($productData); // sempre bom limpar referência
+
                         Product::insert($buffer);
                         $imported += count($buffer);
                     } catch (\Throwable $e) {
                         Log::warning("Erro ao inserir chunk de produtos: " . $e->getMessage());
                     }
+
                     $buffer = []; // esvazia o buffer
                 }
+
 
                 $counter++;
                 if ($maxItems && $counter >= $maxItems) break;

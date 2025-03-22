@@ -6,6 +6,8 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 
+
+
 class ProductController extends Controller
 {
     /**
@@ -14,7 +16,7 @@ class ProductController extends Controller
     public function index()
     {
         try {
-            $products = Product::paginate(10); // Retorna 10 produtos por página
+            $products = Product::paginate(10);
 
             return response()->json($products);
         } catch (\Exception $e) {
@@ -56,7 +58,7 @@ class ProductController extends Controller
             ]);
     
             // Transformar o 'code' em inteiro (remover as aspas duplas)
-            $validatedData['code'] = (int) trim($validatedData['code'], '"');
+            $validatedData['code'] = trim($validatedData['code'], '"');
     
             // Adiciona os campos `imported_t` e `status`
             $validatedData['status'] = 'draft';  // Define o status como 'draft'
@@ -100,7 +102,7 @@ class ProductController extends Controller
     public function show($code)
     {
         try {
-            $product = Product::where('code', (int) $code)->first();
+            $product = Product::where('code', $code)->first();
 
             if (!$product) {
                 return response()->json(['message' => 'Produto não encontrado'], 404);
@@ -121,7 +123,7 @@ class ProductController extends Controller
     public function update(Request $request, $code)
     {
         try {
-            $product = Product::where('code', (int) $code)->first();
+            $product = Product::where('code', $code)->first();
 
             if (!$product) {
                 return response()->json(['message' => 'Produto não encontrado'], 404);
@@ -147,7 +149,7 @@ class ProductController extends Controller
     public function destroy($code)
     {
         try {
-            $product = Product::where('code', (int) $code)->first();
+            $product = Product::where('code', $code)->first();
 
             if (!$product) {
                 return response()->json(['message' => 'Produto não encontrado'], 404);

@@ -5,6 +5,7 @@ use App\Http\Controllers\ImportTestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
+use App\Services\ElasticsearchService;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,18 +17,16 @@ use App\Http\Controllers\ProductController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
+ 
 Route::get('/', [HealthCheckController::class, 'index']);
 
 Route::get('/test-import/{filename}', [ImportTestController::class, 'import']);
 Route::get('test-import-job/{filename}', [ImportTestController::class, 'importJob']);
 
-use JsonMachine\JsonMachine;
 
-Route::get('/test-jsonmachine', function () {
-    return response()->json(['loaded' => class_exists('JsonMachine\JsonMachine')]);
+Route::get('/teste-busca', function (ElasticsearchService $es) {
+    return $es->search('chocolate');
 });
-
 
 
 Route::prefix('products')->group(function () {

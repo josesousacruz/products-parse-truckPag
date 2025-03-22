@@ -14,27 +14,27 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
-use MongoDB\Client;
+// use MongoDB\Client;
 
-Route::get('/products', function () {
-    try {
-        // Criar uma instância do cliente MongoDB
-        $produtos = Product::all();
+// Route::get('/products', function () {
+//     try {
+//         // Criar uma instância do cliente MongoDB
+//         $produtos = Product::all();
 
 
-        return response()->json([
-            'status' => 'Conectado ao MongoDB com sucesso!',
-            'databases' => $produtos
-        ]);
-    } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'Erro ao conectar ao MongoDB',
-            'message' => $e->getMessage()
-        ]);
-    }
-});
+//         return response()->json([
+//             'status' => 'Conectado ao MongoDB com sucesso!',
+//             'databases' => $produtos
+//         ]);
+//     } catch (\Exception $e) {
+//         return response()->json([
+//             'status' => 'Erro ao conectar ao MongoDB',
+//             'message' => $e->getMessage()
+//         ]);
+//     }
+// });
 

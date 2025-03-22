@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use MongoDB\Laravel\Eloquent\Model;
+use MongoDB\Laravel\Eloquent\Model as EloquentModel;
 
-class Product extends Model
+class Product extends EloquentModel
 {
     protected $connection = 'mongodb';
     protected $collection = 'products';
