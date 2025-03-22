@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
@@ -11,8 +10,8 @@ return new class extends Migration {
             $collection->index('code', ['unique' => true]); 
             $collection->index('status'); 
             $collection->index('imported_t'); 
-            $collection->index('brands'); // Índice extra para marcas
-            $collection->index('nutriscore_score'); // Índice extra para filtrar NutriScore
+            $collection->index('brands'); 
+            $collection->index('nutriscore_score');
         });
         
     }

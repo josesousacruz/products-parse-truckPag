@@ -13,9 +13,16 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::paginate(10); // Retorna 10 produtos por página
+        try {
+            $products = Product::paginate(10); // Retorna 10 produtos por página
 
-        return response()->json($products);
+            return response()->json($products);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erro ao obter os produtos',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -24,36 +31,52 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         try {
-            // 🔹 Validação de TODOS os campos obrigatórios
             $validatedData = $request->validate([
-                'code' => 'required|integer|unique:products,code',
-                'status' => 'required|in:draft,trash,published',
-                'imported_t' => 'required|date', 
+                'code' => 'required|unique:products,code',
                 'url' => 'url', 
                 'creator' => 'string|max:255',
                 'created_t' => 'integer',
                 'last_modified_t' => 'integer',
                 'product_name' => 'string|max:255',
-                'quantity' => 'string',
-                'brands' => 'string',
-                'categories' => 'string', 
+                'quantity' => 'nullable|string',
+                'brands' => 'nullable|string',
+                'categories' => 'nullable|string', 
                 'labels' => 'nullable|string',
                 'cities' => 'nullable|string',
-                'purchase_places' => 'string',
+                'purchase_places' => 'nullable|string',
                 'stores' => 'nullable|string',
-                'ingredients_text' => 'string',
+                'ingredients_text' => 'nullable|string',
                 'traces' => 'nullable|string',
-                'serving_size' => 'string',
-                'serving_quantity' => 'numeric',
-                'nutriscore_score' => 'integer',
-                'nutriscore_grade' => 'string|max:1',
-                'main_category' => 'string',
-                'image_url' => 'url', 
+                'serving_size' => 'nullable|string',
+                'serving_quantity' => 'nullable|string',                                                                            
+                'nutriscore_score' => 'nullable|string',
+                'nutriscore_grade' => 'nullable|string',
+                'main_category' => 'nullable|string',
+                'image_url' => 'url',
             ]);
-
-            // 🔹 Criar o produto no banco de dados
+    
+            // Transformar o 'code' em inteiro (remover as aspas duplas)
+            $validatedData['code'] = (int) trim($validatedData['code'], '"');
+    
+            // Adiciona os campos `imported_t` e `status`
+            $validatedData['status'] = 'draft';  // Define o status como 'draft'
+            $validatedData['imported_t'] = now(); // Define o campo `imported_t` com o horário atual (data e hora)
+    
+            if (isset($validatedData['categories'])) {
+                $validatedData['categories'] = implode(',', array_map('trim', explode(',', $validatedData['categories'])));
+            }
+    
+            if (isset($validatedData['labels'])) {
+                $validatedData['labels'] = implode(',', array_map('trim', explode(',', $validatedData['labels'])));
+            }
+    
+            if (isset($validatedData['traces'])) {
+                $validatedData['traces'] = implode(',', array_map('trim', explode(',', $validatedData['traces'])));
+            }
+    
+            // Criar o produto no banco de dados
             $product = Product::create($validatedData);
-
+    
             return response()->json([
                 'message' => 'Produto salvo com sucesso!',
                 'product' => $product
@@ -70,19 +93,26 @@ class ProductController extends Controller
             ], 500);
         }
     }
-
+    
     /**
      * Display the specified resource.
      */
     public function show($code)
     {
-        $product = Product::where('code', $code)->first();
+        try {
+            $product = Product::where('code', (int) $code)->first();
 
-        if (!$product) {
-            return response()->json(['message' => 'Produto não encontrado'], 404);
+            if (!$product) {
+                return response()->json(['message' => 'Produto não encontrado'], 404);
+            }
+
+            return response()->json($product);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erro ao obter o produto',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        return response()->json($product);
     }
 
     /**
@@ -90,18 +120,25 @@ class ProductController extends Controller
      */
     public function update(Request $request, $code)
     {
-        $product = Product::where('code', $code)->first();
+        try {
+            $product = Product::where('code', (int) $code)->first();
 
-        if (!$product) {
-            return response()->json(['message' => 'Produto não encontrado'], 404);
+            if (!$product) {
+                return response()->json(['message' => 'Produto não encontrado'], 404);
+            }
+
+            $product->update($request->all());
+
+            return response()->json([
+                'message' => 'Produto atualizado com sucesso!',
+                'product' => $product
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erro ao atualizar o produto',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $product->update($request->all());
-
-        return response()->json([
-            'message' => 'Produto atualizado com sucesso!',
-            'product' => $product
-        ]);
     }
 
     /**
@@ -109,14 +146,21 @@ class ProductController extends Controller
      */
     public function destroy($code)
     {
-        $product = Product::where('code', $code)->first();
+        try {
+            $product = Product::where('code', (int) $code)->first();
 
-        if (!$product) {
-            return response()->json(['message' => 'Produto não encontrado'], 404);
+            if (!$product) {
+                return response()->json(['message' => 'Produto não encontrado'], 404);
+            }
+
+            $product->update(['status' => 'trash']);
+
+            return response()->json(['message' => 'Produto movido para lixeira!']);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Erro ao mover o produto para a lixeira',
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        $product->update(['status' => 'trash']);
-
-        return response()->json(['message' => 'Produto movido para lixeira!']);
     }
 }
