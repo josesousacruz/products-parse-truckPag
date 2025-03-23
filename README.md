@@ -9,6 +9,11 @@ This is a challenge by Coodesh
 Este projeto foi desenvolvido como parte de um desafio técnico proposto pela **TruckPag**. Ele consiste em consumir dados do Open Food Facts, armazená-los em uma base MongoDB e expô-los via uma API Laravel.
 
 ---
+## 📄 Documentação da API
+
+A documentação da API está disponível via Swagger UI:
+
+🔗 **[Clique aqui para acessar a documentação](http://localhost:8000/api/documentation)**
 
 ## 🚀 Tecnologias Utilizadas
 
