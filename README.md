@@ -131,16 +131,16 @@ Além disso, realizei ajustes nos comandos:
 - `ini_set('memory_limit', '2048M')`
 
 ### Fila de Processamento  
-Utilizei o sistema de **queue do Laravel** com driver `database`, para manter rastreamento e persistência dos jobs.  
+Utilizei o sistema de **queue do Laravel**, para manter rastreamento e persistência dos jobs.  
 No Docker, configurei o `supervisord` para manter os workers ativos em background, garantindo execução contínua.
 
 - Os dados são processados em **chunks de 100 linhas**, cada um gerando um job separado (`ImportOpenFoodFactsChunkJob`).
-- Isso aumentou a escalabilidade e evitou travamentos do container, além de permitir reprocessamento seletivo.
+- Isso aumentou a escalabilidade e evitou travamentos do container.
 
 ### Agendamento de Tarefas  
 A rotina de importação é executada diariamente às **2h da manhã** via Laravel Scheduler (`schedule:work`).  
 
-- Em ambiente Docker, o `supervisord` é responsável por manter o processo ativo e rodando a cada minuto.
+- Em ambiente Docker, o `supervisord` é responsável por manter o processo ativo e verificando a cada minuto.
 
 ### Considerações sobre o Docker  
 Implementei uma configuração Docker completa com:
