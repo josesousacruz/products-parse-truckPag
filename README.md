@@ -15,6 +15,7 @@ Este projeto foi desenvolvido como parte de um desafio técnico proposto pela **
 A documentação da API está disponível via Swagger UI:
 
 🔗 **[Clique aqui para acessar a documentação](http://localhost:8000/api/documentation)**
+**A aplicação precisa estar rodando para acessar a documentação**
 
 ## 🚀 Tecnologias Utilizadas
 
