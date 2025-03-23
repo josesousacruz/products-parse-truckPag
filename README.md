@@ -22,10 +22,8 @@ Este projeto foi desenvolvido como parte de um desafio técnico proposto pela **
 ### 📦 Bibliotecas e Pacotes
 
 - [`mongodb/mongodb`](https://github.com/mongodb/mongo-php-library) — Driver MongoDB para PHP  
-- `vlucas/phpdotenv` — Gerenciamento de variáveis de ambiente  
 - Laravel HTTP Client (baseado em Guzzle) — para requisições aos arquivos `.json.gz`  
-- Laravel Queues & Jobs — para processamento assíncrono  
-- Laravel Scheduler — agendamento automático de importações  
+
 
 ### 🛠️ Ferramentas
 
@@ -86,6 +84,16 @@ Esse comando irá:
 > Ou Execute:
 ```bash
 docker exec -it nome-do-container php artisan import:openfoodfacts
+```
+## 🧪 Como Executar os Testes
+
+```bash
+# Sem Docker
+php artisan test
+
+# Com Docker
+docker exec -it nome-do-container php artisan test
+
 ```
 
 ## 🛠️ Processo de Desenvolvimento
