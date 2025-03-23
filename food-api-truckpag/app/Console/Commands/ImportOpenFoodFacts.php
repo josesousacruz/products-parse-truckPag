@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\DownloadOpenFoodFactsFileJob;
 use App\Jobs\ImportOpenFoodFactsJob;
 use App\Models\ImportHistory;
 use Illuminate\Console\Command;
@@ -49,7 +50,8 @@ class ImportOpenFoodFacts extends Command
                     if($existingImport){
                         $this->info("Arquivo já importado: {$file}");
                     }else{
-                        ImportOpenFoodFactsJob::dispatch($file);
+                        // ImportOpenFoodFactsJob::dispatch($file);
+                        DownloadOpenFoodFactsFileJob::dispatch($file)->onQueue('low');
                         // Enfileirar o job para cada arquivo
                         $this->info("Job enfileirado para o arquivo: {$file}");
                     }

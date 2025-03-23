@@ -135,7 +135,6 @@ class ImportOpenFoodFactsJob implements ShouldQueue
 
 
                 // 5. Inserir no banco
-                // 5. Inserir no banco
                 if (count($buffer) >= $chunkSize) {
                     try {
                         // Sanitiza os campos que precisam ser string
@@ -185,6 +184,7 @@ class ImportOpenFoodFactsJob implements ShouldQueue
 
             // 8. Sucesso!
             Log::info('Importação concluída com sucesso!');
+            
         } catch (\Exception $e) {
             // Caso ocorra algum erro em qualquer parte do processo, logamos o erro
             Log::error("Erro inesperado durante a importação do arquivo {$this->filename}: {$e->getMessage()}");
