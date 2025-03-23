@@ -155,3 +155,21 @@ Tudo pronto para subir rapidamente o ambiente de desenvolvimento.
 > Esse erro **não ocorre** ao rodar o projeto diretamente fora do container.  
 > Não tive tempo hábil para resolver essa limitação no ambiente Docker.
 
+---
+
+## ⚠️ Pontos Não Implementados
+
+Alguns requisitos do desafio foram considerados mas **não implementados integralmente** por motivo de tempo ou escopo:
+
+- ❌ **Endpoint de busca com ElasticSearch (ou similar)**  
+  > A estrutura inicial para uma busca customizada foi iniciada, mas a integração com ElasticSearch não foi concluída.
+
+- ❌ **Sistema de alerta em caso de falhas no Sync dos produtos**  
+  > Não implementado. A aplicação atualmente realiza o processo de importação com filas e logs, mas sem alertas automatizados.
+
+- ❌ **Esquema de segurança com API Key nos endpoints**  
+  > Planejado, porém não implementado por falta de tempo hábil. A API está atualmente aberta para facilitar os testes.
+
+---
+
+
