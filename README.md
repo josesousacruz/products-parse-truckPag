@@ -45,24 +45,23 @@ Você pode rodar este projeto **com ou sem Docker**. Abaixo estão as instruçõ
 
 ```bash
 # Clone o repositório e entre na pasta
-git clone https://github.com/seu-usuario/openfoodfacts-api.git
-cd openfoodfacts-api
+git clone https://github.com/josesousacruz/products-parse-truckPag.git
+cd food-api-truckpag
 
 # Instale as dependências
 composer install
 
-# Copie o .env e gere a chave da aplicação
-cp .env.example .env
-php artisan key:generate
-
 # Configure o MongoDB no .env
 
-# Em dois terminais separados, execute:
+# Em terminais separados, execute:
 
-# Terminal 1 - para processar a fila
+# Terminal 1 - para rodar o projeto
+php artisan serve
+
+# Terminal 2 - para processar a fila
 php artisan queue:work
 
-# Terminal 2 - para executar os agendamentos a cada minuto
+# Terminal 3 - para executar os agendamentos a cada minuto
 php artisan schedule:work
 ```
 ---
@@ -98,11 +97,6 @@ Considerei utilizar MySQL, pois tenho mais experiência e utilizo no dia a dia. 
 O primeiro passo foi garantir a conexão com o banco de dados MongoDB (via Atlas).  
 Com a conexão testada e validada, inseri manualmente alguns produtos na collection `products` para implementar rotas, controllers, models e migrations:
 
-- `GET /` – Detalhes da API e status da conexão com a base  
-- `PUT /products/:code` – Atualização de produto (usado pelo projeto Web)  
-- `DELETE /products/:code` – Marca o produto como "trash"  
-- `GET /products/:code` – Recupera os dados de um único produto  
-- `GET /products` – Lista todos os produtos com paginação  
 
 ### Lógica de Importação  
 Inicialmente implementei a importação em um único job, mas logo percebi que os arquivos `.json.gz` eram extremamente grandes, o que fazia a aplicação ultrapassar os limites de **tempo de execução** e **memória**.
