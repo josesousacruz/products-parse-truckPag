@@ -8,10 +8,30 @@ use Illuminate\Validation\ValidationException;
 
 
 
+/**
+ * @OA\Info(
+ *     title="Food API - Open Food Facts",
+ *     version="1.0.0",
+ *     description="API para importar, armazenar e gerenciar dados alimentícios."
+ * )
+ *
+ * @OA\Tag(
+ *     name="Products",
+ *     description="Gerenciamento de produtos"
+ * )
+ */
 class ProductController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * @OA\Get(
+     *     path="/api/products",
+     *     tags={"Products"},
+     *     summary="Listar produtos",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de produtos paginada"
+     *     )
+     * )
      */
     public function index()
     {
@@ -27,8 +47,24 @@ class ProductController extends Controller
         }
     }
 
-    /**
-     * Store a newly created resource in storage.
+     /**
+     * @OA\Post(
+     *     path="/api/products",
+     *     tags={"Products"},
+     *     summary="Criar novo produto",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/Product")
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Produto criado com sucesso"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Erro de validação"
+     *     )
+     * )
      */
     public function store(Request $request)
     {
@@ -97,7 +133,25 @@ class ProductController extends Controller
     }
     
     /**
-     * Display the specified resource.
+     * @OA\Get(
+     *     path="/api/products/{code}",
+     *     tags={"Products"},
+     *     summary="Buscar produto por código",
+     *     @OA\Parameter(
+     *         name="code",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Produto encontrado"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Produto não encontrado"
+     *     )
+     * )
      */
     public function show($code)
     {
@@ -118,7 +172,29 @@ class ProductController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * @OA\Put(
+     *     path="/api/products/{code}",
+     *     tags={"Products"},
+     *     summary="Atualizar um produto",
+     *     @OA\Parameter(
+     *         name="code",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(ref="#/components/schemas/Product")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Produto atualizado com sucesso"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Produto não encontrado"
+     *     )
+     * )
      */
     public function update(Request $request, $code)
     {
@@ -144,7 +220,25 @@ class ProductController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * @OA\Delete(
+     *     path="/api/products/{code}",
+     *     tags={"Products"},
+     *     summary="Mover produto para lixeira",
+     *     @OA\Parameter(
+     *         name="code",
+     *         in="path",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Produto movido para lixeira com sucesso"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Produto não encontrado"
+     *     )
+     * )
      */
     public function destroy($code)
     {
@@ -165,4 +259,5 @@ class ProductController extends Controller
             ], 500);
         }
     }
+
 }

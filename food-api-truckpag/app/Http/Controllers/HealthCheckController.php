@@ -9,6 +9,29 @@ use Carbon\Carbon;
 
 class HealthCheckController extends Controller
 {
+    /**
+     * @OA\Get(
+     *     path="/",
+     *     tags={"Health"},
+     *     summary="Verifica o status da API",
+     *     description="Retorna informações sobre o estado atual da API, banco de dados, cron, uptime e uso de memória.",
+     *     @OA\Response(
+     *         response=200,
+     *         description="Status da API retornado com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="api_details", type="string", example="API Status - Detalhes da API"),
+     *             @OA\Property(property="db_status", type="string", example="Conexão com o banco de dados OK"),
+     *             @OA\Property(property="last_cron_execution", type="string", example="2024-03-22 02:00:00"),
+     *             @OA\Property(property="uptime", type="string", example="Online há 5 dias, 3 horas"),
+     *             @OA\Property(property="memory_usage", type="string", example="15.23 MB")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erro ao verificar o status da API"
+     *     )
+     * )
+     */
     public function index()
     {
         // Verificar a conexão com o banco de dados
@@ -28,7 +51,7 @@ class HealthCheckController extends Controller
 
         //$uptime = exec('uptime -p');  // Para sistemas Linux
 
-        
+
         // Uso de memória
         $memoryUsage = memory_get_usage(true); // Memória em bytes
         $memoryUsageFormatted = $this->formatBytes($memoryUsage);
@@ -48,7 +71,7 @@ class HealthCheckController extends Controller
         // Usando PowerShell para obter o tempo de atividade
         $uptimeRaw = shell_exec('powershell -Command "([System.Diagnostics.Stopwatch]::GetTimestamp())"');
         $uptimeRaw = (int)$uptimeRaw;
-        
+
         // Podemos utilizar a data e hora do sistema de quando o computador foi iniciado
         $startTime = shell_exec('powershell -Command "(Get-CimInstance -ClassName Win32_OperatingSystem).LastBootUpTime"');
         $startTime = strtotime($startTime);
@@ -59,7 +82,7 @@ class HealthCheckController extends Controller
         $hours = floor(($uptime - $days * 24 * 60 * 60) / 3600);
         $minutes = floor(($uptime - $days * 24 * 60 * 60 - $hours * 3600) / 60);
 
-        return "up {$days} days, {$hours} hours, {$minutes} minutes";
+        return "up {$hours} hours, {$minutes} minutes";
     }
 
     // Método para formatar a quantidade de memória de bytes para uma leitura mais amigável

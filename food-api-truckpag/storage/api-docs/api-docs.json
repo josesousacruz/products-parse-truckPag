@@ -1,0 +1,291 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Food API - Open Food Facts",
+        "description": "API para importar, armazenar e gerenciar dados alimentícios.",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/": {
+            "get": {
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Verifica o status da API",
+                "description": "Retorna informações sobre o estado atual da API, banco de dados, cron, uptime e uso de memória.",
+                "operationId": "5408a750236cac24b0d6adc3ada9787e",
+                "responses": {
+                    "200": {
+                        "description": "Status da API retornado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "api_details": {
+                                            "type": "string",
+                                            "example": "API Status - Detalhes da API"
+                                        },
+                                        "db_status": {
+                                            "type": "string",
+                                            "example": "Conexão com o banco de dados OK"
+                                        },
+                                        "last_cron_execution": {
+                                            "type": "string",
+                                            "example": "2024-03-22 02:00:00"
+                                        },
+                                        "uptime": {
+                                            "type": "string",
+                                            "example": "Online há 5 dias, 3 horas"
+                                        },
+                                        "memory_usage": {
+                                            "type": "string",
+                                            "example": "15.23 MB"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Erro ao verificar o status da API"
+                    }
+                }
+            }
+        },
+        "/api/products": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Listar produtos",
+                "operationId": "1bfaa78d1c2c3848ab8165c5dadcad3e",
+                "responses": {
+                    "200": {
+                        "description": "Lista de produtos paginada"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Criar novo produto",
+                "operationId": "e8185e307706e2cd84bbcf5171e2f09d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Product"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Produto criado com sucesso"
+                    },
+                    "422": {
+                        "description": "Erro de validação"
+                    }
+                }
+            }
+        },
+        "/api/products/{code}": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Buscar produto por código",
+                "operationId": "d3deebb6679ed9b4ecd1c3af94736c15",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Produto encontrado"
+                    },
+                    "404": {
+                        "description": "Produto não encontrado"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Atualizar um produto",
+                "operationId": "0f1e54a84587dee40efb8d8341a15536",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Product"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Produto atualizado com sucesso"
+                    },
+                    "404": {
+                        "description": "Produto não encontrado"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Mover produto para lixeira",
+                "operationId": "6a4d2026c38bb1610409db25b01a1d9c",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Produto movido para lixeira com sucesso"
+                    },
+                    "404": {
+                        "description": "Produto não encontrado"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Product": {
+                "required": [
+                    "code"
+                ],
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "example": "123456789"
+                    },
+                    "url": {
+                        "type": "string",
+                        "format": "url",
+                        "example": "https://example.com/product"
+                    },
+                    "creator": {
+                        "type": "string",
+                        "example": "admin"
+                    },
+                    "created_t": {
+                        "type": "integer",
+                        "example": 1617842047
+                    },
+                    "last_modified_t": {
+                        "type": "integer",
+                        "example": 1617843055
+                    },
+                    "product_name": {
+                        "type": "string",
+                        "example": "Chocolate Amargo 70%"
+                    },
+                    "quantity": {
+                        "type": "string",
+                        "example": "100g"
+                    },
+                    "brands": {
+                        "type": "string",
+                        "example": "Nestlé"
+                    },
+                    "categories": {
+                        "type": "string",
+                        "example": "Snacks, Doces"
+                    },
+                    "labels": {
+                        "type": "string",
+                        "example": "Sem glúten"
+                    },
+                    "cities": {
+                        "type": "string",
+                        "example": "São Paulo"
+                    },
+                    "purchase_places": {
+                        "type": "string",
+                        "example": "Mercado Central"
+                    },
+                    "stores": {
+                        "type": "string",
+                        "example": "Supermercado X"
+                    },
+                    "ingredients_text": {
+                        "type": "string",
+                        "example": "cacau, açúcar, manteiga de cacau"
+                    },
+                    "traces": {
+                        "type": "string",
+                        "example": "soja"
+                    },
+                    "serving_size": {
+                        "type": "string",
+                        "example": "25g"
+                    },
+                    "serving_quantity": {
+                        "type": "string",
+                        "example": "25"
+                    },
+                    "nutriscore_score": {
+                        "type": "string",
+                        "example": "10"
+                    },
+                    "nutriscore_grade": {
+                        "type": "string",
+                        "example": "C"
+                    },
+                    "main_category": {
+                        "type": "string",
+                        "example": "chocolates"
+                    },
+                    "image_url": {
+                        "type": "string",
+                        "format": "url",
+                        "example": "https://example.com/image.jpg"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Products",
+            "description": "Gerenciamento de produtos"
+        },
+        {
+            "name": "Health",
+            "description": "Health"
+        }
+    ]
+}
