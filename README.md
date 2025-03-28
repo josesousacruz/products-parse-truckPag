@@ -34,8 +34,7 @@ A documentação da API está disponível via Swagger UI:
 
 ### 🛠️ Ferramentas
 
-- **Docker** — para containerização do ambiente  
-- **Docker Compose** — orquestração de serviços  
+- **Docker Compose** — para containerização do ambiente e orquestração de serviços  
 - **Supervisor** — gerenciamento de múltiplos processos simultâneos (API, queue worker, scheduler)  
 - **Postman** — testes manuais da API  
 - **Git** — versionamento do projeto
@@ -112,30 +111,55 @@ Considerei utilizar MySQL, pois tenho mais experiência e utilizo no dia a dia. 
 O primeiro passo foi garantir a conexão com o banco de dados MongoDB (via Atlas).  
 Com a conexão testada e validada, inseri manualmente alguns produtos na collection `products` para implementar rotas, controllers, models e migrations:
 
+## 🧩 Lógica de Importação de Produtos — OpenFoodFacts
 
-### Lógica de Importação  
-Inicialmente implementei a importação em um único job, mas logo percebi que os arquivos `.json.gz` eram extremamente grandes, o que fazia a aplicação ultrapassar os limites de **tempo de execução** e **memória**.
+### Problemas Iniciais
 
+Inicialmente, a lógica de importação foi implementada em um único job que:
+- Baixava o arquivo `.json.gz` completo;
+- Descompactava para `.json`;
+- Processava o conteúdo linha a linha.
 
-Para contornar isso, refatorei a lógica para dividir a tarefa em **múltiplos jobs pequenos** (chunks), reduzindo drasticamente o risco de falhas por timeout ou estouro de memória.
+Porém, os arquivos do OpenFoodFacts são **extremamente grandes**, e esse processo causava **estouro de memória** e **timeout** nos containers Docker com recursos limitados.
 
-Também utilizei técnicas específicas para minimizar o uso de memória:
+---
 
-- `stream_copy_to_stream()` foi usado para descompactar os arquivos `.gz` diretamente em `.json`, evitando carregar todo o conteúdo em memória.
-- A leitura foi feita linha a linha com `fopen`, `fgets`, `feof` e `fclose`, processando o arquivo em fluxo (stream) em vez de armazená-lo inteiro em arrays.
+### ✅ Solução Aplicada
 
-Essas práticas tornaram o processo mais eficiente e compatível com ambientes restritos como containers Docker.
+Para resolver os problemas de performance e consumo de memória, a lógica foi completamente refatorada com foco em **streaming sob demanda** e **processamento eficiente**:
 
-Além disso, realizei ajustes nos comandos:
-- `set_time_limit(0)`
-- `ini_set('memory_limit', '2048M')`
+#### 1. **Streaming direto do `.json.gz`**
+- Utilizamos a biblioteca `GuzzleHttp` com a opção `['stream' => true]` para baixar os dados aos poucos.
+- Os dados são descompactados em tempo real usando `inflate_init(ZLIB_ENCODING_GZIP)` + `inflate_add()`, evitando salvar ou carregar o arquivo inteiro.
+- Cada linha (em formato NDJSON) é processada **conforme chega** via stream, utilizando `strpos()` para detectar quebras de linha.
 
-### Fila de Processamento  
-Utilizei o sistema de **queue do Laravel**, para manter rastreamento e persistência dos jobs.  
-No Docker, configurei o `supervisord` para manter os workers ativos em background, garantindo execução contínua.
+#### 2. **Buffer e inserção em chunks**
+- A cada 100 produtos, os dados são inseridos em lote no banco via `Product::insert($buffer)`.
+- Isso reduz o número de queries e o uso de memória.
 
-- Os dados são processados em **chunks de 100 linhas**, cada um gerando um job separado (`ImportOpenFoodFactsChunkJob`).
-- Isso aumentou a escalabilidade e evitou travamentos do container.
+#### 3. **Ajustes para ambiente restrito (Docker)**
+- `set_time_limit(0)` para evitar timeouts em execuções longas.
+- `ini_set('memory_limit', '2048M')` para garantir mais espaço (embora o uso real de memória tenha sido drasticamente reduzido).
+- Uso de logs (`Log::info`, `Log::warning`, `Log::error`) para monitoramento completo da importação.
+
+---
+
+### 🧠 Arquitetura
+
+- A lógica principal foi extraída para um **Service** (`OpenFoodFactsImportService`) reutilizável em qualquer lugar da aplicação.
+- Esse service pode ser usado:
+  - Por um **Job assíncrono** (`ImportOpenFoodFactsJob`);
+  - Por um **Controller** via rota HTTP (útil para testes manuais ou chamadas diretas).
+
+---
+
+### 📦 Fila de Processamento
+
+- A importação é feita por meio de **fila Laravel (`ShouldQueue`)**, o que mantém a aplicação responsiva.
+- Os jobs são gerenciados por **supervisord** no ambiente Docker, garantindo execução contínua.
+- O Service pode opcionalmente limitar a importação a um número de registros (`$maxItems`), facilitando controle e testes.
+
+---
 
 ### Agendamento de Tarefas  
 A rotina de importação é executada diariamente às **2h da manhã** via Laravel Scheduler (`schedule:work`).  
@@ -150,10 +174,6 @@ Implementei uma configuração Docker completa com:
 - `supervisord.conf`
 
 Tudo pronto para subir rapidamente o ambiente de desenvolvimento.
-
-> ⚠️ **Observação:** Durante os testes, identifiquei que o ambiente Docker possui **limitações de recursos** que podem causar falhas nos jobs de importação (ex: timeout, consumo de memória).  
-> Esse erro **não ocorre** ao rodar o projeto diretamente fora do container.  
-> Não tive tempo hábil para resolver essa limitação no ambiente Docker.
 
 ---
 
@@ -172,4 +192,11 @@ Alguns requisitos do desafio foram considerados mas **não implementados integra
 
 ---
 
+### ✅ Resultado Final
 
+- 💡 Importação **100% em stream**: sem salvar arquivos, sem estourar memória.
+- ⚡️ Começa a processar os dados imediatamente enquanto o arquivo ainda está baixando.
+- 🐳 Compatível com containers Docker com recursos limitados.
+- ♻️ Arquitetura desacoplada, reutilizável e preparada para escalar.
+
+---
